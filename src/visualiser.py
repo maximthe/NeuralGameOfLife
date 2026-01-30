@@ -8,11 +8,10 @@ def create_life_gif(grid, n_frames, fps, filename='game_of_life.gif', size=100):
     """
     Generates a Game of Life simulation and saves it as a GIF.
 
-    Args:
-        n_frames (int): Total number of frames to record.
-        fps (int): Frames per second for the output GIF.
-        filename (str): Name of the file to save (e.g., 'simulation.gif').
-        size (int): The width/height of the grid.
+    :param n_frames (int): Total number of frames to record.
+    :param fps (int): Frames per second for the output GIF.
+    :param filename (str): Name of the file to save (e.g., 'simulation.gif').
+    :param size (int): The width/height of the grid.
     """
 
     # Setup the plot
