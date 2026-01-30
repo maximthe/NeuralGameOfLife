@@ -63,8 +63,8 @@ class LifeDataset(Dataset):
         next_state = game_of_life_step(current_state, K)
 
         # Convert to tensors
-        current_state_tensor = torch.from_numpy(current_state)
-        next_state_tensor = torch.from_numpy(next_state)
+        current_state_tensor = torch.from_numpy(current_state).float().unsqueeze(0)
+        next_state_tensor = torch.from_numpy(next_state).float().unsqueeze(0)
 
         return current_state_tensor, next_state_tensor
 
