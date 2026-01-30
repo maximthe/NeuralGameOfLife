@@ -7,42 +7,106 @@ from src.data import LifeDataset
 from src.model import GameOfLifeNet
 
 
-def train(model, optimizer, criterion, num_epochs):
-    loss_history = [np.inf]
+def train_epoch(model, dataloader, optimizer, criterion, device='cpu'):
+    """Train for one epoch and return average loss."""
+    model.train()
+    total_loss = 0.0
+
+    for input_batch, target_batch in dataloader:
+        input_batch = input_batch.to(device)
+        target_batch = target_batch.to(device)
+
+        # Forward pass
+        predictions = model(input_batch)
+        loss = criterion(predictions, target_batch)
+
+        # Backward pass
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+
+    return total_loss / len(dataloader)
+
+
+def train(model, dataloader, optimizer, criterion, num_epochs, device='cpu', verbose=True):
+    """Train the model for multiple epochs."""
+    loss_history = []
+
     for epoch in range(num_epochs):
-        print(F"Epoch {epoch}/{num_epochs - 1}")
-        print(f"Min Loss: {np.min(loss_history)}")
+        avg_loss = train_epoch(model, dataloader, optimizer, criterion, device)
+        loss_history.append(avg_loss)
 
-        avg_loss = 0
+        if verbose:
+            print(f"Epoch {epoch + 1}/{num_epochs} - Loss: {avg_loss:.6f} - Min Loss: {min(loss_history):.6f}")
 
-        for input, target in dataloader:
-            # Prediction step
-            prediction = model(input)
-            loss = criterion(prediction, target)
-            avg_loss += loss.item()
+    return loss_history
 
-            # Learning step
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
 
-        loss_history.append(avg_loss / len(dataloader))
+def create_model_and_optimizer(lr=0.001):
+    """Initialize model and optimizer."""
+    model = GameOfLifeNet()
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+    return model, optimizer
+
+
+def create_dataloader(num_samples=10000, grid_size=20, batch_size=64, shuffle=True):
+    """Create dataset and dataloader."""
+    dataset = LifeDataset(num_samples=num_samples, grid_size=grid_size)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
+    return dataloader
+
+
+def run_training(
+        num_samples=10000,
+        grid_size=20,
+        batch_size=64,
+        lr=0.001,
+        num_epochs=50,
+        device='cpu',
+        verbose=True
+):
+    """
+    Main training function that can be called from other modules.
+
+    Args:
+        num_samples: Number of training samples
+        grid_size: Size of the Game of Life grid
+        batch_size: Batch size for training
+        lr: Learning rate
+        num_epochs: Number of training epochs
+        device: Device to train on ('cpu' or 'cuda')
+        verbose: Whether to print training progress
+
+    Returns:
+        model: Trained model
+        loss_history: List of average losses per epoch
+    """
+    # Setup
+    dataloader = create_dataloader(num_samples, grid_size, batch_size)
+    model, optimizer = create_model_and_optimizer(lr)
+    criterion = nn.BCELoss()
+
+    # Move model to device
+    model = model.to(device)
+
+    # Train
+    loss_history = train(model, dataloader, optimizer, criterion, num_epochs, device, verbose)
+
+    return model, loss_history
 
 
 if __name__ == "__main__":
-    # Hyperparameters
-    BATCH_SIZE = 64  # A common size for small image tasks
-    LR = 0.001  # Learning rate
-    NUM_EPOCHS = 50
+    # Train with default parameters
+    model, loss_history = run_training(
+        num_samples=10000,
+        grid_size=20,
+        batch_size=64,
+        lr=0.001,
+        num_epochs=50,
+        device='cpu',
+        verbose=True
+    )
 
-    # Prepare Data
-    dataset = LifeDataset(num_samples=10000, grid_size=20)
-    dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
-
-    # Initialize tools
-    model = GameOfLifeNet()
-    optimizer = optim.Adam(model.parameters(), lr=LR)
-    criterion = nn.BCELoss()
-
-    # Train
-    train(model, optimizer, criterion, NUM_EPOCHS)
+    print(f"\nTraining complete. Final loss: {loss_history[-1]:.6f}")
