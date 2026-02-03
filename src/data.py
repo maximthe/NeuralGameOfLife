@@ -8,7 +8,7 @@ K = np.array([[1, 1, 1],
               [1, 0, 1],
               [1, 1, 1]])
 
-def generate_random_grid(size, density):
+def generate_random_grid(size, density=0.2):
     """
     :param size: numpy array (N, N)
     :param density: percentage of the grid filled in
@@ -43,30 +43,29 @@ def game_of_life_step(grid, kernel):
 
 class LifeDataset(Dataset):
     def __init__(self, num_samples=10000, grid_size=20, density=0.20, seed=None):
-        """
-        Generates a dataset of valid state transitions on-the-fly
-        """
         self.num_samples = num_samples
         self.grid_size = grid_size
         self.density = density
-        self.seed = seed
+
+        # Pre-generate all samples
+        if seed is not None:
+            np.random.seed(seed)
+
+        self.data = []
+        for i in range(num_samples):
+            current_state = generate_random_grid(grid_size, density)
+            next_state = game_of_life_step(current_state, K)
+
+            current_tensor = torch.from_numpy(current_state).float().unsqueeze(0)
+            next_tensor = torch.from_numpy(next_state).float().unsqueeze(0)
+
+            self.data.append((current_tensor, next_tensor))
 
     def __len__(self):
         return self.num_samples
 
     def __getitem__(self, idx):
-        # Set seed for reproducibility
-        if self.seed is not None:
-            np.random.seed(self.seed + idx)
-
-        current_state = generate_random_grid(self.grid_size, self.density)
-        next_state = game_of_life_step(current_state, K)
-
-        # Convert to tensors
-        current_state_tensor = torch.from_numpy(current_state).float().unsqueeze(0)
-        next_state_tensor = torch.from_numpy(next_state).float().unsqueeze(0)
-
-        return current_state_tensor, next_state_tensor
+        return self.data[idx]
 
 
 if __name__ == "__main__":
