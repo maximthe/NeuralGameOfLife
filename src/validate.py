@@ -4,8 +4,8 @@ import torch
 import numpy as np
 
 
-def grade_performance_single_step(model, grid_size=20):
-    test = LifeDataset(grid_size)
+def grade_performance_single_step(model, grid_size=20, reverse=False):
+    test = LifeDataset(grid_size, reverse=reverse)
 
     correct = 0
 
@@ -46,8 +46,8 @@ def grade_performance_sequence(model, grid_size=20, num_steps=20):
 
 
 if __name__ == "__main__":
-    trained_model = run_training(grid_size=10, num_epochs=20)[0]
-    correct = grade_performance_single_step(trained_model, grid_size=500)
+    trained_model = run_training(grid_size=10, num_epochs=10, reverse=True)[0]
+    correct = grade_performance_single_step(trained_model, grid_size=10, reverse=True)
     print(correct)
     correct = grade_performance_sequence(trained_model, num_steps=100, grid_size=500)
     print(correct)

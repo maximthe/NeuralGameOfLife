@@ -49,9 +49,9 @@ def create_model_and_optimizer(lr=0.001):
     return model, optimizer
 
 
-def create_dataloader(num_samples=10000, grid_size=20, batch_size=64, shuffle=True):
+def create_dataloader(num_samples=10000, grid_size=20, batch_size=64, shuffle=True, reverse=False):
     """Create dataset and dataloader."""
-    dataset = LifeDataset(num_samples=num_samples, grid_size=grid_size)
+    dataset = LifeDataset(num_samples=num_samples, grid_size=grid_size, reverse=reverse)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     return dataloader
 
@@ -63,7 +63,8 @@ def run_training(
         lr=0.001,
         num_epochs=50,
         device='cpu',
-        verbose=True
+        verbose=True,
+        reverse=False
 ):
     """
     Main training function that can be called from other modules.
@@ -76,13 +77,14 @@ def run_training(
         num_epochs: Number of training epochs
         device: Device to train on ('cpu' or 'cuda')
         verbose: Whether to print training progress
+        reverse: Whether predicting the future or previous move
 
     Returns:
         model: Trained model
         loss_history: List of average losses per epoch
     """
     # Setup
-    dataloader = create_dataloader(num_samples, grid_size, batch_size)
+    dataloader = create_dataloader(num_samples, grid_size, batch_size, reverse)
     model, optimizer = create_model_and_optimizer(lr)
     criterion = nn.BCELoss()
 

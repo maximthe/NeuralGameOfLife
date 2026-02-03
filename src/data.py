@@ -42,7 +42,7 @@ def game_of_life_step(grid, kernel):
 
 
 class LifeDataset(Dataset):
-    def __init__(self, num_samples=10000, grid_size=20, density=0.20, seed=None):
+    def __init__(self, num_samples=10000, grid_size=20, density=0.20, seed=None, reverse=False):
         self.num_samples = num_samples
         self.grid_size = grid_size
         self.density = density
@@ -59,7 +59,10 @@ class LifeDataset(Dataset):
             current_tensor = torch.from_numpy(current_state).float().unsqueeze(0)
             next_tensor = torch.from_numpy(next_state).float().unsqueeze(0)
 
-            self.data.append((current_tensor, next_tensor))
+            if not reverse:
+                self.data.append((current_tensor, next_tensor))
+            else:
+                self.data.append((next_tensor, current_tensor))
 
     def __len__(self):
         return self.num_samples
