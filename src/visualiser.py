@@ -120,5 +120,5 @@ if __name__ == '__main__':
         grid=initial_grid,
         n_frames=60,
         fps=10,
-        filename='model_vs_reality_glider.gif'
+        filename='../model_vs_reality_glider.gif'
     )
