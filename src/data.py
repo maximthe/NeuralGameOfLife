@@ -72,6 +72,5 @@ class LifeDataset(Dataset):
 
 
 if __name__ == "__main__":
-    test = LifeDataset(grid_size=20)
-    print(test.__getitem__(0))
-    print(test.__getitem__(1))
+    test = LifeDataset(grid_size=5, num_samples=10, reverse=True)
+    print(test)

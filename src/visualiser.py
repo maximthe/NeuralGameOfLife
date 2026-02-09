@@ -1,5 +1,5 @@
-import data
-from data import K
+import src.data
+from src.data import K
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation

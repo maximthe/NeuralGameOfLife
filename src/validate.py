@@ -1,5 +1,5 @@
-from train import run_training
-from data import LifeDataset, generate_random_grid, game_of_life_step, K
+from src.train import run_training
+from src.data import LifeDataset, generate_random_grid, game_of_life_step, K
 import torch
 import numpy as np
 
@@ -46,8 +46,6 @@ def grade_performance_sequence(model, grid_size=20, num_steps=20):
 
 
 if __name__ == "__main__":
-    trained_model = run_training(grid_size=10, num_epochs=10, reverse=True)[0]
+    trained_model = run_training(grid_size=20, num_epochs=30, reverse=True)[0]
     correct = grade_performance_single_step(trained_model, grid_size=10, reverse=True)
-    print(correct)
-    correct = grade_performance_sequence(trained_model, num_steps=100, grid_size=500)
     print(correct)
